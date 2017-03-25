@@ -13,7 +13,8 @@ from asu import calcMH
 from util import config
 
 
-def calculateMH2Data(pool_size, slicer,lcolumns,permutations):
+
+def calculateMH2Data(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size):
     first = True
     rowsize = len(lcolumns)
     # creating pool
@@ -27,10 +28,10 @@ def calculateMH2Data(pool_size, slicer,lcolumns,permutations):
         print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
         
         if (first):
-            job_args.append([slicer,slice,True,permutations,rowsize])            
+            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size])            
             first = False
         else:
-            job_args.append([slicer,slice,False,permutations,rowsize])
+            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size])
     
     pool_outputs = pool.map(calcMH.exec_wrap, job_args )
     pool.close()  # no more tasks
@@ -84,7 +85,14 @@ if __name__ == '__main__':
     
     parser.add_argument('-permutation', action='store',
                     default=128,
+                    type=int,
                     dest='permutation',
+                    help='Turn on debug (data profiling)')
+    
+    parser.add_argument('-encrypt', action='store',
+                    default=0,
+                    type=int,
+                    dest='encrypt',
                     help='Turn on debug (data profiling)')
     
     
@@ -99,7 +107,17 @@ if __name__ == '__main__':
     data_type1 = args.data_type1
     data_type2 = args.data_type2
     permutation = args.permutation
+    encrypt = int(args.encrypt)
     
+    encrypt_flag = False
+    ACTION_1 = 'MH_'
+    ACTION_2 = 'SIM_CALC'
+    
+    #encrypt setup
+    if encrypt > 0:
+        encrypt_flag = True
+        ACTION_1 = 'BF_MH_'
+        ACTION_2 = 'BF_'+str(encrypt)+'_SIM_CALC'
     
     columns_file1 = config.getHeaders(data_type1)
     columns_file2 = config.getHeaders(data_type2)
@@ -110,17 +128,17 @@ if __name__ == '__main__':
     start_mh = time.time()
     #file 1
     s1 = Slicer(file1,chunk_size_mb=slices,file_encoding=encod)
-    mhs_1 = calculateMH2Data(process,s1,columns_file1,permutation)
+    mhs_1 = calculateMH2Data(process,s1,columns_file1,permutation,encrypt_flag,encrypt)
     
     end_mh = time.time()
-    config.writeExecTime2csv(file2,'MH_'+str(permutation)+"_P",start_mh,end_mh)
+    config.writeExecTime2csv(file2,ACTION_1+str(permutation)+"_P",start_mh,end_mh)
     
     # file2
     start_mh = time.time()
     s2 = Slicer(file2,chunk_size_mb=slices,file_encoding=encod)
-    mhs_2 = calculateMH2Data(process,s2,columns_file2,128)
+    mhs_2 = calculateMH2Data(process,s2,columns_file2,permutation,encrypt_flag,encrypt)
     end_mh = time.time()
-    config.writeExecTime2csv(file2,'MH_'+str(permutation)+"_P",start_mh,end_mh)
+    config.writeExecTime2csv(file2,ACTION_1+str(permutation)+"_P",start_mh,end_mh)
     
     start_comp = time.time()
     h2 = columns_file2.copy()
@@ -142,6 +160,11 @@ if __name__ == '__main__':
     
     #problema aqui 
     #name = config.writeCompResult2csv(file1,file2,dados)
-    name = config.writeComparation2csv(file1,file2,dados)
-    config.writeExecTime2csv(name,"SIM_CALC",start_mh,end_mh)
+    if encrypt_flag:
+        name = config.writeComparation2csv(file1,file2,dados,
+                                           encrypt_flag=True,bf_size=encrypt)
+    else:
+        name = config.writeComparation2csv(file1,file2,dados)
+    
+    config.writeExecTime2csv(name,ACTION_2,start_mh,end_mh)
     print("Done")

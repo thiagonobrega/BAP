@@ -24,8 +24,10 @@ if __name__ == '__main__':
     #data = minhash_util.list_2d_dict(h,v,d)
     #f = 'result_comp_medpos_random_selected_0.075p_INMT4AA1_random_selected_0.0025p.csv'
     di = 'F:\\results\\18032017\\'
+    di = 'F:\\results\\22032017\\'
     #di = 'F:\\results\\debug\\'
     outfile = 'data/18032017.csv'
+    outfile = 'data/22032017.csv'
     
     files = check(di)
     for file in files:

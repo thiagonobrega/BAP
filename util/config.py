@@ -55,12 +55,18 @@ def readDataProfile2Dict(file):
         r[row[0]] = row[1]
     return r
 
-def writeComparation2csv(file1,file2,dados):
+def writeComparation2csv(file1,file2,dados,encrypt_flag=False,bf_size=0):
     rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
     f1_name = os.path.split(os.path.abspath(file1))[1].split('.csv')[0]
     f2_name = os.path.split(os.path.abspath(file2))[1].split('.csv')[0]
-    outfile = rpath + "result_comp_" + f1_name + "_" + f2_name + ".csv"
-    print(outfile)
+    
+    outfile = ''
+    
+    if (encrypt_flag):
+        outfile = rpath + "BF-" + str(bf_size) + "-result_comp_" + f1_name + "_" + f2_name + ".csv"
+    else:
+        outfile = rpath + "result_comp_" + f1_name + "_" + f2_name + ".csv"
+    
     write(outfile,[],dados,result=True)
     return f1_name + "_" + f2_name
 
