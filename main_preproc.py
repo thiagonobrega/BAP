@@ -20,6 +20,14 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 
+def checkDir(dirToScreens):
+    import os
+    from os import path
+    files = []
+    for f in os.listdir(dirToScreens):
+        if f.endswith(".csv"):
+            files.append(f)
+    return files
     
 def mean_confidence_interval(mean,se,n, confidence=0.95):
     h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
@@ -53,7 +61,7 @@ if __name__ == '__main__':
                         help='Number of process')
     
     parser.add_argument('-profile', action='store_true',
-                    default=False,
+                    default=True,
                     dest='profile',
                     help='Turn on debug (data profiling)')
     
@@ -79,6 +87,7 @@ if __name__ == '__main__':
     process = 2
     process = 4
     profile = True
+    checkDir()
     
     columns = config.getHeaders(data_type)
     
@@ -100,7 +109,7 @@ if __name__ == '__main__':
         
         slice = [chunkStart,chunkSize]
         
-        print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
+        #print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
         
         if (first):
             job_args.append([s,slice,columns,True,rowsize])            
@@ -131,16 +140,18 @@ if __name__ == '__main__':
     for c in columns:
         result[c] = mean_confidence_interval(means[c],sem[c],data_length)
     
+    
+    
+    
     end_stats = time.time()
-    #result['mean'] = df.mean()[1:]
-    #result['median'] = df.median()[1:]
-    #result['var'] = df.var()[1:]
-    #result['std'] = df.std(ddof=1).tolist()[1:]
+    
 
     config.writeExecTime2csv(file,'DATA_PREPPROC_STATS',start_stats,end_stats)
     
     ##
     ## data profiling
+    ##
+    ## mean e std_errot of charcater per column
     ##
     if profile:
         start_prof = time.time()
@@ -157,7 +168,7 @@ if __name__ == '__main__':
             
             slice = [chunkStart,chunkSize]
             
-            print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
+            #print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
             
             if (first):
                 job_args.append([s,slice,columns,True,rowsize])            
@@ -183,10 +194,6 @@ if __name__ == '__main__':
                 profile[col] = dict( a + b )
         
         end_prof = time.time()
-        #sum dict
-        #from collections import Counter
-        #
-        #dict(Counter(a) + Counter(b))
 
     #rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
     file_name = os.path.split(os.path.abspath(file))[1]
@@ -198,6 +205,10 @@ if __name__ == '__main__':
         
     config.writeDataProfile(p_file,file_name,columns,len(df),uniques)
     
+    profile_file = "data/profile/"
+    file_name = os.path.split(os.path.abspath(file))[1]
+    out = profile_file + file_name
+    config.writeDataStats(out,file_name,data_type,columns,result,len(df),profile)
     
     #writeExecTime2csv(file,'DATA_PREPPROC_STATS',start_stats,end_stats)
     config.writeExecTime2csv(file,'DATA_PREPPROC_PROFILE',start_prof,end_prof)

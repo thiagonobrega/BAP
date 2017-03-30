@@ -105,7 +105,7 @@ def evaluateA(results,goldstandard):
                 wrong.index(row_r)
             except ValueError:
                 wrong.append(row_r)
-    return correct,wrong,len(goldstandard)
+    return correct,wrong,goldstandard
 
 def evaluateB(results,goldstandard):
     correct = []
@@ -125,7 +125,7 @@ def evaluateB(results,goldstandard):
                 wrong.index(row_r)
             except ValueError:
                 wrong.append(row_r)
-    return correct,wrong,len(goldstandard)
+    return correct,wrong,goldstandard
 
 def evaluateResults(horizontal_labels,vertical_labels,results):
     

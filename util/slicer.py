@@ -85,7 +85,7 @@ class Slicer(object):
         '''
         
         self.file = filepath
-        print(self.file)
+        #print(self.file)
         self.file_encoding = file_encoding
         self.chunk_size = int(chunk_size_mb * (1024*1024))
         

@@ -8,6 +8,7 @@ from util import csvutil
 from configparser import ConfigParser
 import time
 import os
+import math
 
 def getHeaders(name):
     cparser = ConfigParser()
@@ -32,6 +33,25 @@ def write(file,headers,data,result=False):
             wmode = 'w'
     
     csvutil.write(file,data,writemode=wmode)
+
+
+def writeDataStats(outfile,filename,data_type,columns,data_stats,data_len,uniques):
+    headers = [ 'filename' , 'length' , 'data_type'  ]
+    stats_c = [filename,data_len,data_type]
+    
+    for c in columns:
+        headers.append("lowermean_numchar_column_" + str(c))
+        stats_c.append( math.floor(data_stats[c][0]) )
+        headers.append("maxmean_numchar_column_" + str(c))
+        stats_c.append( round(data_stats[c][2]) )
+        headers.append("unique_vals_column_" + str(c))
+        stats_c.append( len(uniques[c]) )
+        
+    
+    dados = []
+    dados.append(stats_c)
+    write(outfile,headers,dados)
+
 
 def writeDataProfile(outfile,file,columns,data_len,uniques):
     
@@ -72,10 +92,10 @@ def writeComparation2csv(file1,file2,dados,encrypt_flag=False,bf_size=0):
 
 def writeCompResult2csv(outfile,profile_dict,
                         data_type1,percent1,data_type2,percent2,
-                        correct,wrong,total):
+                        correct,wrong,total,miss,wrong_vals):
     headers = ['data_type_1','percent_1','data_1_length',
                'data_type_2','percent_2','data_2_length',
-               'correct','wrong','gabarito']
+               'correct','wrong','gabarito','nao_classificados','classificados_errados']
     #rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
     dados = []
     
@@ -92,6 +112,8 @@ def writeCompResult2csv(outfile,profile_dict,
     dados.append(correct)
     dados.append(wrong)
     dados.append(total)
+    dados.append(miss)
+    dados.append(wrong_vals)
     dados = [dados]
     write(outfile,headers,dados)
 

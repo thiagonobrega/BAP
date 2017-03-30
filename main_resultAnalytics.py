@@ -24,10 +24,14 @@ if __name__ == '__main__':
     #data = minhash_util.list_2d_dict(h,v,d)
     #f = 'result_comp_medpos_random_selected_0.075p_INMT4AA1_random_selected_0.0025p.csv'
     di = 'F:\\results\\18032017\\'
-    di = 'F:\\results\\22032017\\'
+    #di = 'F:\\results\\22032017\\'
     #di = 'F:\\results\\debug\\'
-    outfile = 'data/18032017.csv'
-    outfile = 'data/22032017.csv'
+    outfile = 'data/18032017b.csv'
+    #outfile = 'data/22032017.csv'
+    
+    
+    missed = {}
+    most_wrong = {}
     
     files = check(di)
     for file in files:
@@ -35,6 +39,26 @@ if __name__ == '__main__':
         results = minhash_util.getResults(h,v,d,limiar_l=0.5)
         
         correct, wrong ,gabarito = minhash_util.evaluateResults(h,v,results)
+        
+        ##gerar estatisticas de erros
+        #convertendo gabarito
+        temp = []
+        for i in gabarito:
+            temp.append(tuple(i))
+        gabarito = temp
+        
+        miss = set(gabarito) - set(correct)
+        for v in miss:
+            try:
+                missed[v] += 1
+            except KeyError:
+                missed[v] = 1
+        
+        for v in wrong:
+            try:
+                most_wrong[v] += 1
+            except KeyError:
+                most_wrong[v] = 1
         
         line = file.split('_')
         dt1 = line[2]
@@ -45,6 +69,10 @@ if __name__ == '__main__':
         prof_d = config.readDataProfile2Dict('data\profile.csv')
         config.writeCompResult2csv(outfile,prof_d,dt1,p1,dt2,p2,
                                    len(correct),len(wrong),
-                                   gabarito)
+                                   len(gabarito),list(miss),wrong)
     
+    print("=========== MISSED ===========")
+    print(missed)
+    print("=========== MOST WRONG ===========")
+    print(most_wrong)
     print('Done!')
