@@ -49,7 +49,7 @@ def write(outfile,data,delimiter=';',encode='utf-8',writemode='w'):
         writemode a == apend
     """
     ofile  = open(outfile, writemode , encoding=encode)
-    writer = csv.writer(ofile, delimiter=delimiter, quotechar='"', quoting=csv.QUOTE_NONE)
+    writer = csv.writer(ofile, delimiter=delimiter, quotechar='"', lineterminator='\n' ,quoting=csv.QUOTE_NONE)
     #writer = csv.writer(ofile, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
     for row in data:
         writer.writerow(row)
