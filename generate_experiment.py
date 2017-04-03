@@ -30,9 +30,22 @@ if __name__ == '__main__':
     )
     
     parser.add_argument('dir', action="store", help='dir to scan')
+    
+    parser.add_argument('-encrypt', action='store',
+                    default=0,
+                    type=int,
+                    dest='encrypt',
+                    help='Use BloomFilter to encrypt the data')
     args = parser.parse_args()
     
     args_dir = args.dir
+    args_encrypt = int(args.encrypt)
+    encrypt_flag = False
+    
+    if args_encrypt != 0:
+        encrypt_flag = True
+        
+    #args_dir = "F:\\temp\\debug\\"
     files = check(args_dir)
     
     done_list = []
@@ -54,7 +67,11 @@ if __name__ == '__main__':
                         f2 = args_dir + file2 + ' '
                         t1 = '-t1 ' + getDataType(file1)
                         t2 = ' -t2 ' + getDataType(file2)
+                        per = ' -process 8 -encrypt ' + str(args_encrypt)
                         if getDataType(file1) != getDataType(file2):
                             done_list.append([file1,file2])
-                            print(p1+f1+f2+t1+t2)
+                            if encrypt_flag:
+                                print(p1+f1+f2+t1+t2+per)
+                            else:
+                                print(p1+f1+f2+t1+t2)
     pass
