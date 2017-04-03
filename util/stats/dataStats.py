@@ -29,7 +29,7 @@ def list2array(mylist,rs):
     return array
 
 def start_process():
-    print('Starting', multiprocessing.current_process().name)
+    print('Starting', multiprocessing.current_process().name)#@UnusedVariable @UndefinedVariable
 
 
 def exec_wrap(data):
@@ -85,10 +85,10 @@ if __name__ == '__main__':
                 'mail_city' , 'mail_state' , 'mail_zip']
     
     first = True    
-    pool_size = multiprocessing.cpu_count() * 2
+    pool_size = multiprocessing.cpu_count() * 2#@UnusedVariable @UndefinedVariable
 #     pool_size = 2
     
-    pool = multiprocessing.Pool(processes=pool_size, initializer=start_process )
+    pool = multiprocessing.Pool(processes=pool_size, initializer=start_process )#@UnusedVariable @UndefinedVariable
     
     job_args = []
                    

@@ -15,7 +15,7 @@ import pandas as pd
 import numpy as np
 
 def start_process():
-    print('Starting', multiprocessing.current_process().name)
+    print('Starting', multiprocessing.current_process().name)#@UnusedVariable @UndefinedVariable
 
 def exec_wrap(data):
     return run(data[0],data[1],data[2],data[3],data[4])
