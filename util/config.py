@@ -91,22 +91,25 @@ def writeComparation2csv(file1,file2,dados,encrypt_flag=False,bf_size=0):
     return f1_name + "_" + f2_name
 
 def writeCompResult2csv(outfile,profile_dict,
-                        data_type1,percent1,data_type2,percent2,
+                        file1,percent1,file2,percent2,
                         correct,wrong,total,miss,wrong_vals):
-    headers = ['data_type_1','percent_1','data_1_length',
-               'data_type_2','percent_2','data_2_length',
+    headers = ['file1','data_type_1','percent_1','data_1_length',
+               'file2','data_type_2','percent_2','data_2_length',
                'correct','wrong','gabarito','nao_classificados','classificados_errados']
     #rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
     dados = []
     
-    dados.append(data_type1)
+    dados.append(file1)
+    from analytics import minhash_util
+    dados.append(minhash_util.getDataType(file1))
     dados.append(percent1)
-    ofile = data_type1 + "_random_selected_" + percent1 + ".csv"
+    ofile = file1 + "_random_selected_" + percent1 + ".csv"
     dados.append(profile_dict[ofile])
     
-    dados.append(data_type2)
+    dados.append(file2)
+    dados.append(minhash_util.getDataType(file2))
     dados.append(percent2)
-    ofile = data_type2 + "_random_selected_" + percent2 + ".csv"
+    ofile = file2 + "_random_selected_" + percent2 + ".csv"
     dados.append(profile_dict[ofile])
     
     dados.append(correct)
