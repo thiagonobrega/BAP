@@ -30,6 +30,14 @@ def getGoldStandard(dt1,dt2):
     
     return result
 
+def getDataType(filename):
+    if 'INMT4AA1' in filename:
+        return 'ncinmates'
+    if 'medpos' in filename:
+        return 'medicare'
+    if 'ncvoter' in filename:
+        return 'ncvoters'
+
 def getDataModel(labels):
     
     for label in labels:
@@ -105,7 +113,7 @@ def evaluateA(results,goldstandard):
                 wrong.index(row_r)
             except ValueError:
                 wrong.append(row_r)
-    return correct,wrong,goldstandard
+    return correct,wrong,goldstandard,False
 
 def evaluateB(results,goldstandard):
     correct = []
@@ -115,6 +123,10 @@ def evaluateB(results,goldstandard):
         for row_gs in goldstandard:
             if (row_gs[0] == row_r[1]) and (row_gs[1] == row_r[0]):
                 classification = True
+        # invertendo o gabarito
+        #print(row_r[0])
+        row_r = (row_r[0],row_r[1])
+
         if (classification):
             try:
                 correct.index(row_r)
@@ -125,12 +137,13 @@ def evaluateB(results,goldstandard):
                 wrong.index(row_r)
             except ValueError:
                 wrong.append(row_r)
-    return correct,wrong,goldstandard
+    return correct,wrong,goldstandard,True
 
 def evaluateResults(horizontal_labels,vertical_labels,results):
     
     d1 = getDataModel(horizontal_labels)
     d2 = getDataModel(vertical_labels)
+    
     
     gs = getGoldStandard(d1,d2)
     

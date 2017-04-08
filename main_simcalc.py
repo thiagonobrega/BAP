@@ -18,7 +18,9 @@ def calculateMH2Data(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size):
     first = True
     rowsize = len(lcolumns)
     # creating pool
-    pool = multiprocessing.Pool(processes=pool_size, initializer=calcMH.start_process )
+    #@UnresolvedImport
+    #@UnusedVariable
+    pool = multiprocessing.Pool(processes=pool_size, initializer=calcMH.start_process )#@UnusedVariable @UndefinedVariable
     job_args = []
     
     for chunkStart,chunkSize in slicer.chunkify():
@@ -93,7 +95,7 @@ if __name__ == '__main__':
                     default=0,
                     type=int,
                     dest='encrypt',
-                    help='Turn on debug (data profiling)')
+                    help='Use BloomFilter to encrypt the data')
     
     
     args = parser.parse_args()

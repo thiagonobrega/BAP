@@ -19,6 +19,7 @@ import os
 import numpy as np
 import scipy as sp
 import scipy.stats
+from analytics import minhash_util
 
 def checkDir(dirToScreens):
     import os
@@ -28,14 +29,6 @@ def checkDir(dirToScreens):
         if f.endswith(".csv"):
             files.append(f)
     return files
-
-def getDataType(filename):
-    if 'INMT4AA1' in filename:
-        return 'ncinmates'
-    if 'medpos' in filename:
-        return 'medicare'
-    if 'ncvoter' in filename:
-        return 'ncvoters'
     
 
 
@@ -97,7 +90,7 @@ if __name__ == '__main__':
     for lfile in checkDir(dir):
         file = dir + lfile
         print(file)
-        data_type = getDataType(lfile)
+        data_type = minhash_util.getDataType(lfile)
         columns = config.getHeaders(data_type)
     
         ###
