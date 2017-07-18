@@ -13,14 +13,17 @@ from io import StringIO
 from util.slicer import Slicer
 import pandas as pd
 import numpy as np
+import ngram
+from lib.mybloom.bloomfilter import BloomFilter
+from util import encrypt
 
 def start_process():
     print('Starting', multiprocessing.current_process().name)#@UnusedVariable @UndefinedVariable
 
 def exec_wrap(data):
-    return run(data[0],data[1],data[2],data[3],data[4])
+    return run(data[0],data[1],data[2],data[3],data[4],data[5])
 
-def run(slicer,slice,headers,first,rowsize):
+def run(slicer,slice,headers,first,rowsize,bf_size):
     
     sdata = StringIO(slicer.read(slice))
     
@@ -29,13 +32,9 @@ def run(slicer,slice,headers,first,rowsize):
     if (first):
         next(reader, None)
     
-    #data length (comprimento do string)
-    dics_1 = []        
-    #numero de bigrams
-    dics_2 = []
+    dics = []        
     for i in range(0,rowsize):
-        dics_1.append({})
-        dics_2.append({})
+        dics.append({})
     
     for row in reader:
         row_size = len(row)
@@ -44,9 +43,9 @@ def run(slicer,slice,headers,first,rowsize):
             if(rowsize == row_size):                
                 for column in range(0,row_size):
                     try:
-                        dics_1[column][str(row[column])] += 1
+                        dics[column][str(row[column])] += 1
                     except KeyError:
-                        dics_1[column][str(row[column])] = 1            
+                        dics[column][str(row[column])] = 1            
             else:
                 print('======== erro =======')
                 print(row)
@@ -54,5 +53,5 @@ def run(slicer,slice,headers,first,rowsize):
             print(row)
 
     #return data_stats
-    return dics_1
+    return dics
     

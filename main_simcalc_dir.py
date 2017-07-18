@@ -31,7 +31,7 @@ def getDataType(fname):
         return 'ncinmates'
     return ''
 
-def calculateMH2Data(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size):
+def calculateMH2Data(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size,bigrams_flag):
     first = True
     rowsize = len(lcolumns)
     # creating pool
@@ -44,13 +44,11 @@ def calculateMH2Data(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size):
         
         slice = [chunkStart,chunkSize]
         
-        print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
-        
         if (first):
-            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size])            
+            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size,bigrams_flag])            
             first = False
         else:
-            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size])
+            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size,bigrams_flag])
     
     pool_outputs = pool.map(calcMH.exec_wrap, job_args )
     pool.close()  # no more tasks
@@ -73,10 +71,12 @@ def arrangeMinHash(pool_outputs,lcolumns):
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
-        description='Run experiment in all files in directory',
+        description='Executa a comparacao (calculo de similaridade) de todos os arquivos em um diretorio',
     )
     
-    parser.add_argument('dir1', action="store", help='Input file')
+    parser.add_argument('dir', action="store", help='Input dir')
+    
+    parser.add_argument('output_dir', action="store", help='Output dir')
     
 
     parser.add_argument('-s', action="store",dest="slice",
@@ -105,22 +105,42 @@ if __name__ == '__main__':
                     dest='encrypt',
                     help='Use BloomFilter to encrypt the data')
     
+    parser.add_argument('-bigrams', action='store_true',
+                    default=False,
+                    dest='bigrams_flag',
+                    help='Utiliza Bigramas para calcular o minhash')
+    
+    parser.add_argument('-st', action='store_true',
+                    default=False,
+                    dest='same_type_flag',
+                    help='So compara os que tiverem o mesmo tipo (e.g. ncovter,ncvoters) ')
     
     args = parser.parse_args()
         
     args_dir = args.dir
+    args_output_dir = args.output_dir
     permutation = args.permutation
     encrypt = int(args.encrypt)
     slices = args.slice
     encod = args.encod
     process = args.process
+    same_type_flag = args.same_type_flag 
+    bigrams_flag =  args.bigrams_flag
     
     encrypt_flag = False
     ACTION_1 = 'MH_'
     ACTION_2 = 'SIM_CALC'
     
+    if bigrams_flag:
+        print("> Inicianodo o calculo de similaridade entre os arquivos com a utilização de bigramas")
+    else:
+        print("> Iniciando o calculo de similaridade entre os arquivos")
+    
+    print(">> MH : " + str(permutation))
+    
     #encrypt setup
     if encrypt > 0:
+        print(">> BF : " + str(encrypt))
         encrypt_flag = True
         ACTION_1 = 'BF_MH_'
         ACTION_2 = 'BF_'+str(encrypt)+'_SIM_CALC'
@@ -145,7 +165,7 @@ if __name__ == '__main__':
         file_full_path = args_dir + f2mh
         s1 = Slicer(file_full_path,chunk_size_mb=slices,file_encoding=encod)
         #lista com 1 minhash por atributo
-        mhs_1 = calculateMH2Data(process,s1,cf,permutation,encrypt_flag,encrypt)
+        mhs_1 = calculateMH2Data(process,s1,cf,permutation,encrypt_flag,encrypt,bigrams_flag)
         
         minhashs[f2mh] = mhs_1
         columns_file[f2mh] = cf
@@ -158,8 +178,15 @@ if __name__ == '__main__':
     done_list = []
     for file1 in files:
         for file2 in files:
+            
+            if (same_type_flag):
+                condition = (dt_file[file1] == dt_file[file2]) 
+            else:
+                condition = (dt_file[file1] != dt_file[file2])
+             
             if file1 != file2:
-                if dt_file[file1] != dt_file[file2]:                    
+                
+                if condition:                    
                     ok = True
                     
                     for done in done_list:
@@ -191,10 +218,10 @@ if __name__ == '__main__':
                             done_list.append([file1,file2])
     
                         if encrypt_flag:
-                            name = config.writeComparation2csv(file1,file2,dados,
+                            name = config.writeComparation2csv(args_output_dir,file1,file2,dados,
                                                                encrypt_flag=True,bf_size=encrypt)
                         else:
-                            name = config.writeComparation2csv(file1,file2,dados)
+                            name = config.writeComparation2csv(args_output_dir,file1,file2,dados)
     
                         config.writeExecTime2csv(name,ACTION_2,start_mh,end_mh)
     

@@ -16,14 +16,17 @@ from io import StringIO
 from util.slicer import Slicer
 import pandas as pd
 import numpy as np
+import ngram
+from lib.mybloom.bloomfilter import BloomFilter
+from util import encrypt
       
 def list2array(mylist,rs):
-#     print(rs)
+    print(rs)
     array = np.zeros((len(mylist),rs))
     i = 0
     for e in mylist:
-#         if len(e) == 5:
-#             print(i,e)
+        if len(e) ==5:
+            print(i,e)
         array[i,] = e
         i += 1
     return array
@@ -33,45 +36,33 @@ def start_process():
 
 
 def exec_wrap(data):
-    return run(data[0],data[1],data[2],data[3],data[4])
+    return run(data[0],data[1],data[2],data[3],data[4],data[5])
 
-def run(slicer,slice,headers,first,rowsize):
+def run(slicer,slice,headers,first,rowsize,bf_size):
     
     sdata = StringIO(slicer.read(slice))
     
-    print(slice)
     reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
     
     if (first):
         next(reader, None)
         
-    # comprimento do string
-    data_stats_1 = []
-    # numero de bigramas
-    data_stats_2 = []
     
-    
+    data_stats = []
     
     for row in reader:
         row_size = len(row)
         #stat_line = np.zeros((1,row_size),dtype=np.int16)
-        #comprimento dos strings
         stat_line = []
-        #comprimento dos bigramas
-        ngramstat_line = []
         
         for column in range(0,row_size):
-            stat_line.append( len(str(row[column])) )
-            import ngram
-            index = ngram.NGram(N=2)
-            bigrams = list(index.ngrams(index.pad(str(row[column]))))
-            ngramstat_line.append( len(bigrams) )
+            bf_data = encrypt.encryptData(str(row[column]), bf_size)
+            stat_line.append( bf_data.filter.count(1) )
             
         try:
 #             data_stats.loc[len(data_stats)] = stat_line
             if(rowsize == row_size):
-                data_stats_1.append(stat_line)
-                data_stats_2.append(ngramstat_line)
+                data_stats.append(stat_line)
             else:
                 print('======== erro =======')
                 print(row)
@@ -79,8 +70,7 @@ def run(slicer,slice,headers,first,rowsize):
             print(row)
 
     #return data_stats
-    # retorno o datastat e o dos bigramas
-    return list2array(data_stats_1,rowsize),list2array(data_stats_2,rowsize)
+    return list2array(data_stats,rowsize)
     #return np.array(data_stats,dtype=np.int16)
     #return np.reshape(data_stats, (len(data_stats),row_size))
 

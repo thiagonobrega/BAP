@@ -7,8 +7,10 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+data/profile/
 data/profile/*.csv
 data/*.csv
+data/*
 .settings/
 .spyproject/
 *_pycache_*

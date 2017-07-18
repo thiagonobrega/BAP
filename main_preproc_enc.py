@@ -12,7 +12,7 @@ import numpy as np
 import time
 from util import config
 import argparse
-from util.stats import dataStats
+from util.stats import dataStatsEncrypt
 from util.stats import dataProfiler
 from util import config
 import os
@@ -38,49 +38,63 @@ def mean_confidence_interval(mean,se,n, confidence=0.95):
 
 if __name__ == '__main__':
     
-    parser = argparse.ArgumentParser(
-        description='Example with nonoptional arguments',
-    )
-     
-    parser.add_argument('file', action="store", help='Input file')
- 
-     
-    parser.add_argument('-e', action="store",dest="encod",
-                        default='UTF-8',
-                        help='encoding [UTF-8,utf_16_le,...]')
-     
-    parser.add_argument('-s', action="store",dest="slice",
-                        default=1,
-                        type=float,
-                        help='size of slice in mb')
-     
-    parser.add_argument('-process', action="store", dest='process',
-                        default=2,
-                        type=int,
-                        help='Number of process')
-     
-    parser.add_argument('-profile', action='store_true',
-                    default=True,
-                    dest='profile',
-                    help='Turn on debug (data profiling)')
-
-    args = parser.parse_args()
-
-    dir = args.file
-    slices = args.slice
-    encod = args.encod
-    process = args.process
-    profile = args.profile
+#     parser = argparse.ArgumentParser(
+#         description='Example with nonoptional arguments',
+#     )
+#     
+#     parser.add_argument('file', action="store", help='Input file')
+# 
+#     
+#     parser.add_argument('-e', action="store",dest="encod",
+#                         default='UTF-8',
+#                         help='encoding [UTF-8,utf_16_le,...]')
+#     
+#     parser.add_argument('-s', action="store",dest="slice",
+#                         default=1,
+#                         type=float,
+#                         help='size of slice in mb')
+#     
+#     parser.add_argument('-process', action="store", dest='process',
+#                         default=2,
+#                         type=int,
+#                         help='Number of process')
+#     
+#     parser.add_argument('-profile', action='store_true',
+#                     default=True,
+#                     dest='profile',
+#                     help='Turn on debug (data profiling)')
+#     
+#     parser.add_argument('-encrypt', action='store',
+#                     default=0,
+#                     type=int,
+#                     dest='encrypt',
+#                     help='Use BloomFilter to encrypt the data')
+#         
+#     args = parser.parse_args()
+#     
+#     
+#     
+#     file = args.file
+#     slices = args.slice
+#     encod = args.encod
+#     process = args.process
+#     encrypt = int(args.encrypt)
+#     profile = args.profile
+    encrypt_flag = False
     
+    profile_file = "data/profile/plano_bigram/"
     
     #dir = 'F:\\temp\\e1\\'
-#     dir = 'F:\\etapa_01\\debug\\'
-#     slices = 4
-#     encod = 'UTF-8'
-#     process = 4
-#     profile = True
-    profile_file = "data/profile/"
-    p_file = "data/profile_debug.csv"
+    dir = 'F:\\etapa_01\\data_02\\'
+    slices = 4
+    encod = 'UTF-8'
+    process = 4
+    profile = True
+    encrypt = 60
+    
+    if encrypt > 0:
+        encrypt_flag = True
+    
     
     for lfile in checkDir(dir):
         file = dir + lfile
@@ -93,13 +107,14 @@ if __name__ == '__main__':
         ###
         start_stats = time.time()
         #slicer
+        
         s = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
         first = True
         pool_size = process
         
         rowsize = len(columns)
         # creating pool
-        pool = multiprocessing.Pool(processes=pool_size, initializer=dataStats.start_process )#@UnusedVariable @UndefinedVariable
+        pool = multiprocessing.Pool(processes=pool_size, initializer=dataStatsEncrypt.start_process )#@UnusedVariable @UndefinedVariable
         job_args = []
         
         for chunkStart,chunkSize in s.chunkify():
@@ -109,50 +124,36 @@ if __name__ == '__main__':
             #print('Slice:' + str(slice[0]) + ',' +str(slice[1]) )
             
             if (first):
-                job_args.append([s,slice,columns,True,rowsize])            
+                job_args.append([s,slice,columns,True,rowsize,encrypt])            
                 first = False
             else:
-                job_args.append([s,slice,columns,False,rowsize])
+                job_args.append([s,slice,columns,False,rowsize,encrypt])
         
-        pool_outputs = pool.map(dataStats.exec_wrap, job_args )
-        
+        pool_outputs = pool.map(dataStatsEncrypt.exec_wrap, job_args )
         pool.close()  # no more tasks
         pool.join()  # wrap up current tasks
         
-        # comprimento dos string
+        r = pool_outputs[0]
+        import sys
+        sys.exit()
         
-        output_nchar   = pool_outputs[0][0]
-        output_nbigram = pool_outputs[0][1]
-        
-        
-        df = pd.DataFrame(output_nchar)
+        for rt in pool_outputs[1:]:
+            r = np.concatenate((r,rt))
+        df = pd.DataFrame(r)
         df.columns = columns
         #definir coluna
-        
-        #bigramas
-        
-        df_bigram = pd.DataFrame(output_nbigram)
-        df_bigram.columns = columns
-    
-        
+        del r
         
         result = {}
-        result_bigram = {}
         data_length = len(df)
         
         #means = df.mean().tolist()
-        means_nchar = df.mean().to_dict()
-        means_bigram = df_bigram.mean().to_dict()
-        
+        means = df.mean().to_dict()
         #standar error of media
-        sem_nchar = df.sem().to_dict()
-        sem_bigram = df_bigram.sem().to_dict()
+        sem = df.sem().to_dict()
         
         for c in columns:
-            result[c] = mean_confidence_interval(means_nchar[c],sem_nchar[c],data_length)
-            result_bigram[c] = mean_confidence_interval(means_bigram[c],sem_bigram[c],data_length)
-
-            
+            result[c] = mean_confidence_interval(means[c],sem[c],data_length)
         
         
         end_stats = time.time()
@@ -209,18 +210,18 @@ if __name__ == '__main__':
     
         #rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
         file_name = os.path.split(os.path.abspath(file))[1]
+        p_file = "data/profile.csv"
         uniques = []
         
         for c in columns:
             uniques.append(profile[c])
             
-        config.writeDataProfile(p_file,file_name,columns,len(df),uniques)
+        #config.writeDataProfile(p_file,file_name,columns,len(df),uniques)
         
-        
+            
         file_name = os.path.split(os.path.abspath(file))[1]
         out = profile_file + file_name
-        
-        config.writeDataStats(out,file_name,data_type,columns,result,result_bigram,len(df),profile)
+        config.writeDataStats(out,file_name,data_type,columns,result,len(df),profile,encrypt_flag=True)
         
         #writeExecTime2csv(file,'DATA_PREPPROC_STATS',start_stats,end_stats)
         config.writeExecTime2csv(file,'DATA_PREPPROC_PROFILE',start_prof,end_prof)

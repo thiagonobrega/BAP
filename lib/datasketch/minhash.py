@@ -167,7 +167,24 @@ class MinHash(object):
         if len(self) != len(other):
             raise ValueError("Cannot compute Jaccard given MinHash with\
                     different numbers of permutation functions")
-        return np.float(np.count_nonzero(self.hashvalues==other.hashvalues)) 
+        return np.float(np.count_nonzero(self.hashvalues==other.hashvalues))
+    
+    def dice(self, other):
+        '''
+        Estimate the DICE similarity (resemblance) between this Minhash
+        and the other.
+        '''
+        if other.seed != self.seed:
+            raise ValueError("Cannot compute Jaccard given MinHash with\
+                    different seeds")
+        if len(self) != len(other):
+            raise ValueError("Cannot compute Jaccard given MinHash with\
+                    different numbers of permutation functions")
+        h = np.float(np.count_nonzero(self.hashvalues==other.hashvalues))
+        a = np.float(np.count_nonzero(self.hashvalues))
+        b = np.float(np.count_nonzero(self.other))
+        
+        return (2*h)/(a+b) 
 
     def bytesize(self):
         '''

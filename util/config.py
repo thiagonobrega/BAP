@@ -35,17 +35,33 @@ def write(file,headers,data,result=False):
     csvutil.write(file,data,writemode=wmode)
 
 
-def writeDataStats(outfile,filename,data_type,columns,data_stats,data_len,uniques):
+def writeDataStats(outfile,filename,data_type,columns,data_stats,bigram_data_stat,data_len,uniques,encrypt_flag=False):
     headers = [ 'filename' , 'length' , 'data_type'  ]
     stats_c = [filename,data_len,data_type]
     
+    if encrypt_flag:
+        lowerv = "min_num_1_"
+        maxv = "max_num_1_"
+        uniquesv = "unique_num_1_"
+    else:
+        lowerv = "lowermean_numchar_column_"
+        maxv = "maxmean_numchar_column_"
+        uniquesv = "unique_vals_column_"
+    
     for c in columns:
-        headers.append("lowermean_numchar_column_" + str(c))
+        headers.append(lowerv + str(c))
         stats_c.append( math.floor(data_stats[c][0]) )
-        headers.append("maxmean_numchar_column_" + str(c))
+        headers.append( maxv + str(c))
         stats_c.append( round(data_stats[c][2]) )
-        headers.append("unique_vals_column_" + str(c))
+        headers.append( uniquesv + str(c))
         stats_c.append( len(uniques[c]) )
+        #bigram
+        headers.append("min_num_bigram_" + str(c))
+#         stats_c.append( math.floor(bigram_data_stat[c][0]) )
+        stats_c.append( bigram_data_stat[c][0] )
+        headers.append( "max_num_bigram_"+ str(c))
+#         stats_c.append( round(bigram_data_stat[c][2]) )
+        stats_c.append( bigram_data_stat[c][2] )
         
     
     dados = []
@@ -75,17 +91,18 @@ def readDataProfile2Dict(file):
         r[row[0]] = row[1]
     return r
 
-def writeComparation2csv(file1,file2,dados,encrypt_flag=False,bf_size=0):
+def writeComparation2csv(output_dir,file1,file2,dados,encrypt_flag=False,bf_size=0):
     rpath = os.path.split(os.path.abspath(file1))[0] + os.path.sep
+    
     f1_name = os.path.split(os.path.abspath(file1))[1].split('.csv')[0]
     f2_name = os.path.split(os.path.abspath(file2))[1].split('.csv')[0]
     
     outfile = ''
     
     if (encrypt_flag):
-        outfile = rpath + "BF-" + str(bf_size) + "-result_comp_" + f1_name + "_" + f2_name + ".csv"
+        outfile = output_dir + "BF-" + str(bf_size) + "-result_comp_" + f1_name + "_" + f2_name + ".csv"
     else:
-        outfile = rpath + "result_comp_" + f1_name + "_" + f2_name + ".csv"
+        outfile = output_dir + "result_comp_" + f1_name + "_" + f2_name + ".csv"
     
     write(outfile,[],dados,result=True)
     return f1_name + "_" + f2_name

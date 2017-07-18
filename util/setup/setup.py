@@ -19,6 +19,9 @@ def upgrade(package):
     pip.main(['install','--upgrade' ,package])
         
 if __name__ == '__main__':
+    install('simhash')
+    import sys
+    sys.exit()
     upgrade('setuptools')
     upgrade('pip')
 # pyblomm
