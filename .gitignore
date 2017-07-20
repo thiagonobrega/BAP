@@ -7,10 +7,18 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+
+# data
 data/profile/
 data/profile/*.csv
 data/*.csv
 data/*
+
+# scratch dir
+scratch/*
+scratch/*/*
+
+
 .settings/
 .spyproject/
 *_pycache_*
@@ -52,3 +60,4 @@ data/*
 Network Trash Folder
 Temporary Items
 .apdisk
+/scratch/

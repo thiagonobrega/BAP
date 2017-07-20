@@ -58,7 +58,8 @@ def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bigrams_flag):
                     index = ngram.NGram(N=2)
                     bigrams_list = list(index.ngrams(index.pad(str(row[column]))))
                     local_data = str(row[column])
-                
+                    
+                #rever isso possivel problem
                 if bigrams_flag:
                     for bigram in bigrams_list:
                         mh.update(bigram.encode('utf8'))
