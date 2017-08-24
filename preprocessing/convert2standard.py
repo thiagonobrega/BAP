@@ -23,6 +23,7 @@ def check(dirToScreens):
     return files
 
 
+#TODO REVER O RATTING
 def convert_reviewTrip(dir_in,dir_out,file_in):
     '''
         Data pre-processing step to trip_advisor reviews
@@ -49,6 +50,9 @@ def convert_reviewTrip(dir_in,dir_out,file_in):
                 else:
                     data.set_value(i,header,str(data[header][i]).upper())
     
+    del data['ratingValue_2']
+    del data['ratingValue_3']
+    data['ratingValue'] = data['ratingValue'].astype(float)
     file_out = dir_out + file_in
     data.to_csv(file_out,index=False,encoding='utf-8',quoting=csv.QUOTE_ALL)
 

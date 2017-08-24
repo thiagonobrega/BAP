@@ -22,23 +22,35 @@ def start_process():
     #print('Starting ', multiprocessing.current_process().name)#@UnusedVariable @UndefinedVariable
 
 def exec_wrap(data):
-    return run(data[0],data[1])
+    return run(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7])
 
 '''
     Recebe a lista de bf
 '''
-def run(bf_lists,attribute):
+#def run(bf_lists,attribute):
+def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bf_lists_len):
     
-    entropy = 0
-    len_bf = len(bf_lists)
+    sdata = StringIO(slicer.read(slice))
+    reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
     
-    if not bf_lists:
-        return [attribute,0]    
+    if (first):
+        next(reader, None)
+        
+    entropy_list = []
+    for i in range(0,rowsize):
+        entropy_list.append(0)
     
-    for bf in bf_lists:
-        #p_x = float(bf.filter.count(1))/ bf.filter.length()
-        p_x = float(bf.filter.count(1))/ ( len_bf * bf.filter.length())
-        if p_x > 0:
-            entropy += - p_x*math.log(p_x, 2)
+    for row in reader:
+        row_size = len(row)
+        if(rowsize == row_size):
+            for column in range(0,row_size):
+                if encrypt_flag:
+                    #TODO: arrumar filtros de bloom
+                    bf = encrypt.encryptData(str(row[column]),bf_size)
+                    p_x = float(bf.filter.count(1))/ ( bf_lists_len * bf.filter.length())
+                    if p_x > 0:
+                        #entropy += - p_x*math.log(p_x, 2)
+                        entropy_list[column] += - p_x*math.log(p_x, 2)
+        
     
-    return [attribute,entropy]
+    return entropy_list

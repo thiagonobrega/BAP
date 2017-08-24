@@ -22,44 +22,52 @@ from analytics.signatures import calcBiGramsLength
 from analytics import encryptProcessWraper 
 from util import config
 from analytics.Signatures import SimilaritySignatures
+import gc
 
-def calculateBigramsLenght(pool_size,data,lcolumns):
-    '''
-        Rever para adicionar o intervalor de confianca
-    '''
-    rowsize = len(lcolumns)
-    # creating pool
-    pool = multiprocessing.Pool(processes=pool_size, initializer=calcBiGramsLength.start_process )#@UnusedVariable @UndefinedVariable
-    job_args = []
-    
-    for cname in lcolumns:
-        job_args.append([data[cname],cname])
-    
-    pool_outputs = pool.map(calcBiGramsLength.exec_wrap, job_args )
-    pool.close()  # no more tasks
-    pool.join()  # wrap up current tasks
-    
-    return arrangeEntropy(pool_outputs)
+def check(dirToScreens):
+    import os
+    from os import path
+    files = []
+    for f in os.listdir(dirToScreens):
+        if f.endswith(".csv"):
+            files.append(f)
+    return files
 
-def calculateEntropy(pool_size,data,lcolumns):
+def calculateEntropy(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size,data_len):
+    first = True
     rowsize = len(lcolumns)
-    # creating pool
+    
     pool = multiprocessing.Pool(processes=pool_size, initializer=calcEntropy.start_process )#@UnusedVariable @UndefinedVariable
     job_args = []
     
-    for cname in lcolumns:
-        job_args.append([data[cname],cname])
+    for chunkStart,chunkSize in slicer.chunkify():
+        slice = [chunkStart,chunkSize]
+        
+        if (first):
+            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size,data_len])            
+            first = False
+        else:
+            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size,data_len])
     
     pool_outputs = pool.map(calcEntropy.exec_wrap, job_args )
     pool.close()  # no more tasks
     pool.join()  # wrap up current tasks
-    
-    return arrangeEntropy(pool_outputs)
 
-def arrangeEntropy(pool_outputs):
-    data = {}     
-    for x in pool_outputs:
-        data[x[0]] = x[1]
+    return arrangeEntropy(pool_outputs,lcolumns)
+    #return arrangeEntropy(pool_outputs)
+
+def arrangeEntropy(pool_outputs,lcolumns):
+    data = {}
+    
+    for i ,column in enumerate(lcolumns):
+        data[column] = pool_outputs[0][i]
+        
+    #for output in pool_outputs[1:]:
+    for i ,column in enumerate(lcolumns):
+        for output in pool_outputs[1:]:
+            tmp = data[column]
+            data[column] = tmp + output[i]
+    
     return data
 
 def encryptData(pool_size, slicer,lcolumns,bf_flag,bf_size):
@@ -91,9 +99,12 @@ def arrangeEncryptedData(pool_outputs,lcolumns):
     for i ,column in enumerate(lcolumns):
         data[column] = pool_outputs[0][i]
         
-    for output in pool_outputs[1:]:
-        for i ,column in enumerate(lcolumns):
-            data[column].merge(output[i])
+    #for output in pool_outputs[1:]:
+    for i ,column in enumerate(lcolumns):
+        for output in pool_outputs[1:]:
+            tmp = data[column]
+            data[column] = tmp + output[i]
+            #data[column].merge(output[i])
     return data
 
 
@@ -140,12 +151,13 @@ def cleanFileName(filename):
     
 
 if __name__ == '__main__':
+    multiprocessing.process
     
     parser = argparse.ArgumentParser(
         description='Arguments to calculate de similarity signatures',
     )
     
-    parser.add_argument('file', action="store", help='Input file')
+    parser.add_argument('dir', action="store", help='Input file')
 
     parser.add_argument('-dt', action="store",dest="data_type",
                         default='ncvoters',
@@ -181,7 +193,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
         
     
-    file = args.file
+    inputdir = args.dir
     slices = args.slice
     encod = args.encod
     process = args.process
@@ -202,48 +214,57 @@ if __name__ == '__main__':
     
     columns_file = config.getHeaders(data_type)
     
-    ###
-    ### MINHASH GENERATE
-    ###
-    start_mh = time.time()
-    s1 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
-    mhs = calculateMH2Data(process,s1,columns_file,permutation,encrypt_flag,encrypt,bigram_flag)
-    end_mh = time.time()
-    config.writeExecTime2csv(file,ACTION_1+str(permutation)+"_P",start_mh,end_mh)    
     
-    ###
-    ### Encrypt
-    ### 
-    start_enc = time.time()
-    s2 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
-    encrypted_data = encryptData(process,s2,columns_file,encrypt_flag,encrypt)
-    end_enc = time.time()
-    config.writeExecTime2csv(file,"ENCRYPT_"+str(encrypt),start_enc,end_enc)
+    files = check(inputdir)
+    for f in files:
+        file = inputdir + f
+        print("::: Start Signature >>> " + str(f))
+        
+        ###
+        ### MINHASH GENERATE
+        ###
+        print("MinhHas")
+        start_mh = time.time()
+        s1 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
+        mhs = calculateMH2Data(process,s1,columns_file,permutation,encrypt_flag,encrypt,bigram_flag)
+        end_mh = time.time()
+        config.writeExecTime2csv(file,ACTION_1+str(permutation)+"_P",start_mh,end_mh)
+        gc.collect()
+        
+        ###
+        ### Encrypt
+        ### 
+        print("Encrypt")
+        start_enc = time.time()
+        s2 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
+        encrypted_data = encryptData(process,s2,columns_file,encrypt_flag,encrypt)
+        data_length_p = len(encrypted_data[columns_file[0]])
+        del encrypted_data
+        end_enc = time.time()
+        config.writeExecTime2csv(file,"ENCRYPT_"+str(encrypt),start_enc,end_enc)
+        gc.collect()
     
-    ###
-    ### Entropy calculation
-    ###
-    start_h = time.time()
-    entropy = calculateEntropy(process,encrypted_data,columns_file)
-    end_h = time.time()    
-    config.writeExecTime2csv(file,"ENTROPY_CALC"+str(encrypt),start_h,end_h)
-    
-    ###
-    ### Entropy calculation
-    ###
-    start_h = time.time()
-    bg_length = calculateBigramsLenght(process,encrypted_data,columns_file)
-    end_h = time.time()    
-    config.writeExecTime2csv(file,"BIGRAM_CALC"+str(encrypt),start_h,end_h)
+        ###
+        ### Entropy calculation
+        ###
+        print("Entropy")
+        start_h = time.time()
+        s3 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
+        entropy = calculateEntropy(process,s3,columns_file,permutation,encrypt_flag,encrypt,data_length_p)
+        #entropy = calculateEntropy(process,encrypted_data,columns_file)
+        end_h = time.time()    
+        config.writeExecTime2csv(file,"ENTROPY_CALC"+str(encrypt),start_h,end_h)
+        
+#         sig = SimilaritySignatures(cleanFileName(file),columns_file,mhs,entropy,bg_length)
+        sig = SimilaritySignatures(cleanFileName(file),columns_file,mhs,entropy)
+        sig.save()
+        del sig
+        gc.collect()
+        print("::: Done Signature >>> " + str(f))
     
 #     print(entropy)
 #     print(bg_length)
-    
-    sig = SimilaritySignatures(cleanFileName(file),columns_file, 
-                               mhs,entropy,bg_length)
-    sig.save()
-    
-    
-    
 #     print(mhs)    
     print("Done")
+#    c = SimilaritySignatures.load('C:\\Users\\Thiago\\OneDrive\\Mestrado\\workspace\\python_windows\\pyPAS\\data\\signatures\\controle\\ohio-b_random_selected_10000.pkl')
+#x = SimilaritySignatures.load('C:\\Users\\Thiago\\OneDrive\\Mestrado\\workspace\\python_windows\\pyPAS\\data\\signatures\\controle\\xaa.pkl')

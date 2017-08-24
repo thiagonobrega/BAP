@@ -18,6 +18,12 @@ def getHeaders(name):
 def writeExecTime2csv(file,action,start,end):
     stat_file = file.split('.')[0]+"_exec_time.csv"
     stat_file = "data/exec_time.csv"
+    import os
+    try:
+        os.mkdir('data')
+    except FileExistsError:
+        pass
+    
     header = ['file' , 'action' ,'start_time' , 'end_time' , 'delta' , 'unix_start' , 'unix_end']
     data = [[file,action,time.ctime(start),time.ctime(end),int(end - start), start , end]]
     write(stat_file,header,data)
