@@ -75,7 +75,17 @@ class SimilaritySignatures(object):
     '''
 
 
-    def __init__(self, file_name , colnames, mh,entrop,rawDatalength):
+#     def __init__(self, file_name , colnames, mh,entrop,rawDatalength):
+#         '''
+#         Constructor
+#         '''
+#         self.file = file_name
+#         self.columns_names = colnames
+#         self.minhash = mh
+#         self.entropy = entrop
+#         self.__rawDataLength = rawDatalength
+#         self.setDataLength()
+    def __init__(self, file_name , colnames, mh,entrop):
         '''
         Constructor
         '''
@@ -83,8 +93,8 @@ class SimilaritySignatures(object):
         self.columns_names = colnames
         self.minhash = mh
         self.entropy = entrop
-        self.__rawDataLength = rawDatalength
-        self.setDataLength()
+#         self.__rawDataLength = rawDatalength
+#         self.setDataLength()    
     
     def setDataLength(self,confidence=0.95):
         r = {}

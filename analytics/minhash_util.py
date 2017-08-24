@@ -10,6 +10,7 @@ from util import config
 import math
 
 
+### posso remover
 def getGoldStandard(dt1,dt2):
     name = ''
     if ( (dt1 == 'ncvoters') or (dt2 == 'ncvoters' ) ) and ( (dt1 == 'ncinmates') or (dt2 == 'ncinmates' ) ):
