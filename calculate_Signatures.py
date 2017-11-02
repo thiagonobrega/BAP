@@ -33,7 +33,7 @@ def check(dirToScreens):
             files.append(f)
     return files
 
-def calculateEntropy(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size,data_len):
+def calculateEntropy(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size,data_len,bigram_flag):
     first = True
     rowsize = len(lcolumns)
     
@@ -44,10 +44,10 @@ def calculateEntropy(pool_size, slicer,lcolumns,permutations,bf_flag,bf_size,dat
         slice = [chunkStart,chunkSize]
         
         if (first):
-            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size,data_len])            
+            job_args.append([slicer,slice,True,permutations,rowsize,bf_flag,bf_size,data_len,bigram_flag])            
             first = False
         else:
-            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size,data_len])
+            job_args.append([slicer,slice,False,permutations,rowsize,bf_flag,bf_size,data_len,bigram_flag])
     
     pool_outputs = pool.map(calcEntropy.exec_wrap, job_args )
     pool.close()  # no more tasks
@@ -189,6 +189,8 @@ if __name__ == '__main__':
                     dest='encrypt',
                     help='Use BloomFilter to encrypt the data, the lengh of BloomFIlter eg. -encrypt 2048 use a 2Mb BF')
     
+    parser.add_argument('--no-bigrams', dest='bigramas', action='store_false')
+    
     
     args = parser.parse_args()
         
@@ -201,6 +203,11 @@ if __name__ == '__main__':
     permutation = args.permutation
     encrypt = int(args.encrypt)
     
+    if not (args.bigramas):
+        bigram_flag = False
+    else:
+        bigram_flag = True
+    
     #inputdir = 'F:\\temp\\gregos\\dblp\\'
     #slices = 10
     #encod = 'UTF-8'
@@ -208,10 +215,12 @@ if __name__ == '__main__':
     #data_type = 'dblp_g'
     #permutation = 128
     #encrypt = 60
+    #bigram_flag = False
     
     #envarioment vars
     encrypt_flag = False
-    bigram_flag = False
+ 
+
     ACTION_1 = 'MH_'
     
     #encrypt setup
@@ -262,7 +271,7 @@ if __name__ == '__main__':
         print("Entropy")
         start_h = time.time()
         s3 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
-        entropy = calculateEntropy(process,s3,columns_file,permutation,encrypt_flag,encrypt,data_length_p)
+        entropy = calculateEntropy(process,s3,columns_file,permutation,encrypt_flag,encrypt,data_length_p,bigram_flag)
         #entropy = calculateEntropy(process,encrypted_data,columns_file)
         end_h = time.time()
         config.writeExecTime2csv(file,"ENTROPY_CALC"+str(encrypt),start_h,end_h)
