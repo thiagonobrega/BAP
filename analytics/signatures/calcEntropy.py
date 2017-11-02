@@ -22,13 +22,13 @@ def start_process():
     #print('Starting ', multiprocessing.current_process().name)#@UnusedVariable @UndefinedVariable
 
 def exec_wrap(data):
-    return run(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7])
+    return run(data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8])
 
 '''
     Recebe a lista de bf
 '''
 #def run(bf_lists,attribute):
-def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bf_lists_len):
+def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bf_lists_len,bigrams_flag):
     
     sdata = StringIO(slicer.read(slice))
     reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
@@ -45,8 +45,12 @@ def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bf_lists_len):
         if(rowsize == row_size):
             for column in range(0,row_size):
                 if encrypt_flag:
-                    #TODO: arrumar filtros de bloom
-                    bf = encrypt.encryptData(str(row[column]),bf_size)
+                    #faz com e sem bigrama
+                    if bigrams_flag:                    
+                        bf = encrypt.encryptDataBigram(str(row[column]),bf_size)
+                    else:
+                        bf = encrypt.encryptDataWords(str(row[column]),bf_size)
+                        
                     p_x = float(bf.filter.count(1))/ ( bf_lists_len * bf.filter.length())
                     if p_x > 0:
                         #entropy += - p_x*math.log(p_x, 2)

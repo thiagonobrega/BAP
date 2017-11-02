@@ -51,21 +51,24 @@ def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bigrams_flag):
                 local_data = ''
                 if encrypt_flag:
                     #TODO: arrumar filtros de bloom
-                    bf = encrypt.encryptData(str(row[column]),bf_size)
+                    if bigrams_flag:
+                        bf = encrypt.encryptDataBigram(str(row[column]),bf_size)
+                    else:
+                        bf = encrypt.encryptDataWords(str(row[column]),bf_size)
                     local_data = str(bf)
                     pass
                 else:
+                    #rever isso possivel problem (nao utilizado)
                     import ngram
                     index = ngram.NGram(N=2)
                     bigrams_list = list(index.ngrams(index.pad(str(row[column]))))
-                    local_data = str(row[column])
-                    
-                #rever isso possivel problem
-                if bigrams_flag:
-                    for bigram in bigrams_list:
-                        mh.update(bigram.encode('utf8'))
-                else:
-                    mh.update(local_data.encode('utf8'))
+                    local_data = str(row[column])                    
+                
+                    if bigrams_flag:
+                        for bigram in bigrams_list:
+                            mh.update(bigram.encode('utf8'))
+                
+                mh.update(local_data.encode('utf8'))
 
 
     #return data_stats
@@ -97,7 +100,7 @@ def run_1(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size):
                 mh = mhs[column]
                 local_data = ''
                 if encrypt_flag:
-                    bf = encrypt.encryptData(str(row[column]),bf_size)
+                    bf = encrypt.encryptDataBigram(str(row[column]),bf_size)
                     local_data = str(bf)
                     pass
                 else:
