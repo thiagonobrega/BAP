@@ -165,7 +165,7 @@ if __name__ == '__main__':
     
     parser.add_argument('-e', action="store",dest="encod",
                         default='UTF-8',
-                        help='encoding [UTF-8,utf_16_le,...]')
+                        help='encoding [UTF-8,iso-8859-1,utf_16_le,...]')
     
     parser.add_argument('-s', action="store",dest="slice",
                         default=1,
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                     default=0,
                     type=int,
                     dest='encrypt',
-                    help='Use BloomFilter to encrypt the data, the lengh of BloomFIlter')
+                    help='Use BloomFilter to encrypt the data, the lengh of BloomFIlter eg. -encrypt 2048 use a 2Mb BF')
     
     
     args = parser.parse_args()
@@ -200,6 +200,14 @@ if __name__ == '__main__':
     data_type = args.data_type
     permutation = args.permutation
     encrypt = int(args.encrypt)
+    
+    #inputdir = 'F:\\temp\\gregos\\dblp\\'
+    #slices = 10
+    #encod = 'UTF-8'
+    #process = 1
+    #data_type = 'dblp_g'
+    #permutation = 128
+    #encrypt = 60
     
     #envarioment vars
     encrypt_flag = False
@@ -218,6 +226,10 @@ if __name__ == '__main__':
     files = check(inputdir)
     for f in files:
         file = inputdir + f
+        ## numero de linhas do arquivo
+        data_length_p = sum(1 for line in open(file))
+        data_length_p -= 1
+
         print("::: Start Signature >>> " + str(f))
         
         ###
@@ -235,14 +247,14 @@ if __name__ == '__main__':
         ### Encrypt
         ### 
         print("Encrypt")
-        start_enc = time.time()
-        s2 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
-        encrypted_data = encryptData(process,s2,columns_file,encrypt_flag,encrypt)
-        data_length_p = len(encrypted_data[columns_file[0]])
-        del encrypted_data
-        end_enc = time.time()
-        config.writeExecTime2csv(file,"ENCRYPT_"+str(encrypt),start_enc,end_enc)
-        gc.collect()
+        #start_enc = time.time()
+        #s2 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
+        #encrypted_data = encryptData(process,s2,columns_file,encrypt_flag,encrypt)
+        #data_length_p = len(encrypted_data[columns_file[0]])
+        #del encrypted_data
+        #end_enc = time.time()
+        #config.writeExecTime2csv(file,"ENCRYPT_"+str(encrypt),start_enc,end_enc)
+        #gc.collect()
     
         ###
         ### Entropy calculation
@@ -252,7 +264,7 @@ if __name__ == '__main__':
         s3 = Slicer(file,chunk_size_mb=slices,file_encoding=encod)
         entropy = calculateEntropy(process,s3,columns_file,permutation,encrypt_flag,encrypt,data_length_p)
         #entropy = calculateEntropy(process,encrypted_data,columns_file)
-        end_h = time.time()    
+        end_h = time.time()
         config.writeExecTime2csv(file,"ENTROPY_CALC"+str(encrypt),start_h,end_h)
         
 #         sig = SimilaritySignatures(cleanFileName(file),columns_file,mhs,entropy,bg_length)

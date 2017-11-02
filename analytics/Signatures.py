@@ -225,3 +225,9 @@ class SimilaritySignatures(object):
         from lib.mybloom.bloomfilter import BloomFilter
         val = b.minhash[attribute_b].jaccard(a.minhash[attribute_a])
         return val
+    
+    def removeAttribute(self,att_name):
+        self.columns_names.remove(att_name)
+        del self.entropy[att_name]
+        del self.minhash[att_name]
+         

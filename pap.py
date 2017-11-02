@@ -103,6 +103,7 @@ if __name__ == '__main__':
     headers = ['gab','file_1','file_2','sample_size','threshold','tm','tnm','fm','precision','recall','f1','detlta','t1','t2']
     
     indir = 'F:\\Mestrado\\Acompanhamento\\SAC18\\experimentos\\exp_round_1\\signatures\\'
+    indir = 'C:\\Users\\Thiago\\Desktop\\data\\signatures\\full\\'
     
     dir1 = indir+'trip\\'
     dir2 = indir+'yelp\\'
@@ -144,7 +145,7 @@ if __name__ == '__main__':
                     s = [gab,filename1,filename2,sample_size1,i,len(tm),len(tnm),len(fm),precision,recall,f1,end-start,start,end]
                     saida.append(s)
                     
-    config.write('saida.csv',headers,saida)
+    config.write('saida-full-trip-yelp.csv',headers,saida)
     
     
     import sys
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     ### VOters
     headers = ['gab','file_1','file_2','sample_size','threshold','tm','tnm','fm','precision','recall','f1','detlta','t1','t2']
     
-    indir = 'F:\\Mestrado\\Acompanhamento\\SAC18\\experimentos\\exp_round_1\\signatures\\'
+    #indir = 'F:\\Mestrado\\Acompanhamento\\SAC18\\experimentos\\exp_round_1\\signatures\\'
     
     dir1 = indir+'nc\\'
     dir2 = indir+'ohio\\'
@@ -196,7 +197,7 @@ if __name__ == '__main__':
                     s = [gab,filename1,filename2,sample_size1,i,len(tm),len(tnm),len(fm),precision,recall,f1,end-start,start,end]
                     saida.append(s)
                     
-    config.write('saida_voters.csv',headers,saida)
+    config.write('saida-ksampler-voters.csv',headers,saida)
     
     import sys
     sys.exit()
