@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 a = SimilaritySignatures.load(dir1+file1)
                 b = SimilaritySignatures.load(dir2+file2)
                 
-                for i in [0.4,0.5,0.6,0.7,0.8,0.9]:
+                for i in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
                     print(5*'-' + str(i) + 5*'-')
                     start = time.time()
                     result = calculateSimilarityMatrix(a,b,theta=i,atheta=0.01)

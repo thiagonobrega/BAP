@@ -35,6 +35,7 @@ if __name__ == '__main__':
     
     #debug memoria
     install('pympler')
+    install("stop-words")
 
 #
     #install('pybloom')
