@@ -14,6 +14,8 @@ data/profile/*.csv
 data/*.csv
 data/*
 
+saida*.csv
+
 # scratch dir
 scratch/*
 scratch/*/*
@@ -61,3 +63,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /scratch/
+/saida-bernoulli-bigrams-dblp-acm.csv
+/saida-bernoulli-bigrams-abt-buy.csv
