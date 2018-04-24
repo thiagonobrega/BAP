@@ -12,7 +12,7 @@ import math
 
 def getHeaders(name):
     cparser = ConfigParser()
-    cparser.read('confs/data_headers.ini')
+    cparser.read('confs/data_headers.ini',encoding="utf8")
     return cparser.get(name, 'columns').replace('\n','').split(',')
 
 def writeExecTime2csv(file,action,start,end):

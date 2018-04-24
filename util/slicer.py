@@ -79,7 +79,7 @@ class Slicer(object):
             yield chunk
 
 
-    def __init__(self, filepath , file_encoding="UTF-8" , chunk_size_mb=1):
+    def __init__(self, filepath , file_encoding="utf-8" , chunk_size_mb=1):
         '''
         Constructor
         '''
