@@ -137,6 +137,8 @@ def arrangeMinHash(pool_outputs,lcolumns):
     mhs = {}
     
     for i ,column in enumerate(lcolumns):
+        #debug
+        #print(column,pool_outputs[0][i].hashvalues)
         mhs[column] = pool_outputs[0][i]
         
     for output in pool_outputs[1:]:
@@ -159,6 +161,10 @@ if __name__ == '__main__':
     
     parser.add_argument('dir', action="store", help='Input file')
 
+    parser.add_argument('-file', action="store",dest="one_file",
+                        default='False',
+                        help='-file True to scan one file only')
+    
     parser.add_argument('-dt', action="store",dest="data_type",
                         default='ncvoters',
                         help='data format [ncvoters,ncinmates,medicare]')
@@ -202,6 +208,7 @@ if __name__ == '__main__':
     data_type = args.data_type
     permutation = args.permutation
     encrypt = int(args.encrypt)
+    one_file = args.one_file
     
     if not (args.bigramas):
         bigram_flag = False
@@ -229,14 +236,22 @@ if __name__ == '__main__':
         ACTION_1 = 'BF_MH_'
     
     
+    #print(data_type)
     columns_file = config.getHeaders(data_type)
     
     
-    files = check(inputdir)
+    if one_file.lower() in ('yes', 'true', 't', 'y', '1'):
+        files = ['']
+    elif one_file.lower() in ('no', 'false', 'f', 'n', '0'):
+        files = check(inputdir)
+
+#    files = check(inputdir)
+    
     for f in files:
         file = inputdir + f
         ## numero de linhas do arquivo
-        data_length_p = sum(1 for line in open(file))
+        #data_length_p = sum(1 for line in open(file))
+        data_length_p = sum(1 for line in open(file,encoding=encod))
         data_length_p -= 1
 
         print("::: Start Signature >>> " + str(f))
