@@ -33,8 +33,8 @@ def run(slicer,slice,first,mhperm,rowsize,encrypt_flag,bf_size,bigrams_flag):
         
     sdata = StringIO(slicer.read(slice))
     
-    #reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
-    reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
+    reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
+    #reader = csv.reader(sdata,delimiter=',',quotechar='"',quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
     
     if (first):
         next(reader, None)
