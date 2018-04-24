@@ -1,0 +1,8 @@
+numpy
+matplotlib
+pandas
+scipy
+nose
+ngram
+bitarray
+xxhash
