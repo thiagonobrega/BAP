@@ -17,8 +17,8 @@ For more information https://www.sigapp.org/sac/sac2018 .
 
 ## Re-run the experiments
 
-- The datasets need to be extracted  (see [data/README.md](data/README.md) )
-- Run the execution scripts (see [scripts/README.md](scripts/README.md) )
+- The datasets need to be extracted  (see [execution/README.md](data/README.md) )
+- Run the execution scripts (see [execution/README.md](scripts/README.md) )
 
 ## Presentations and text
 
