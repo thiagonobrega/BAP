@@ -1,6 +1,6 @@
 # Blind Attribute Pairing (BAP)
 
-Welcome to the BAP GitHub. This GitHub contains the proof-of-concept of "Schema Matching" solution to scenarios where privacy is required. This solution was presented as a conference paper in ACM-SAC 2018 (https://doi.org/10.1145/3167132.3167193), and in my master degree dissertation (only in Portuguese). In this page contains all elements (source code, scripts, and datasets) needed to ensure de repeatability of the BAP results. 
+Welcome to the BAP GitHub. This GitHub contains the proof-of-concept of "Schema Matching" solution to scenarios where privacy is required. This solution was presented as a conference paper in ACM-SAC 2018 (https://doi.org/10.1145/3167132.3167193), and in my master degree dissertation. In this page contains all elements (source code, scripts, and datasets) needed to ensure de repeatability of the BAP results. 
 
 ## About BAP
 
@@ -16,4 +16,13 @@ For more information https://www.sigapp.org/sac/sac2018 .
     $ pip install -r requirements.txt
 
 ## Re-run the experiments
-    $ 
+
+- The datasets need to be extracted  (see [data/README.md](data/README.md) )
+- Run the execution scripts (see [scripts/README.md](scripts/README.md) )
+
+## Presentations and text
+
+ - [ACM SAC18 Presentation](scripts/README.md)  
+ - ACM SAC18 Paper
+ - [MS.c Presentation (Portuguese) ](text/README.md)
+ - MS.c Dissertation
