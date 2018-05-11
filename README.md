@@ -22,7 +22,7 @@ For more information https://www.sigapp.org/sac/sac2018 .
 
 ## Presentations and text
 
- - [ACM SAC18 Presentation](scripts/README.md)  
+ - [ACM SAC18 Presentation](https://1drv.ms/p/s!AiduPqZxUF_qi4Mb3Q2gGVeZ6K8hJA)  
  - ACM SAC18 Paper
- - [MS.c Presentation (Portuguese) ](text/README.md)
+ - [MS.c Presentation (Portuguese) ](https://1drv.ms/p/s!AiduPqZxUF_qjZonchHU41EYKUPXKA)
  - MS.c Dissertation
