@@ -26,3 +26,4 @@ For more information https://www.sigapp.org/sac/sac2018 .
  - ACM SAC18 Paper
  - [MS.c Presentation (Portuguese) ](https://1drv.ms/p/s!AiduPqZxUF_qjZonchHU41EYKUPXKA)
  - MS.c Dissertation
+ - [CTDBD 2019 Presentation (Portuguese) ](https://1drv.ms/p/s!AiduPqZxUF_qju06z-YMYF9XzuFrSw)
